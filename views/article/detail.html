@@ -1,0 +1,76 @@
+<% include ../include/header.html%>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<div class="row">
+    <div class="col-sm-8 col-sm-offset-2">
+        <ol class="breadcrumb">
+            <li><a href="/category/list">分类</a></li>
+            <li class="active"><%=article.category.name%></li>
+        </ol>
+        <div class="panel panel-default">
+            <div class="panel-heading"><%=article.title%></div>
+            <div class="panel-body"><%=article.content%></div>
+        <%if(user && user._id  == article.user._id){%>
+            <div class="panel-footer">
+                <a class="btn btn-warning" href="/article/update/<%=article._id%>">编辑</a>
+                <a class="btn btn-danger" href="/article/delete/<%=article._id%>">删除</a>
+            </div>
+        <%}%>
+            <div class="panel-footer">
+                <form method="POST" action="/comment/add">
+                    <textarea name="content" id="content" cols="30" rows="10" class="form-control"></textarea>
+                    <input type="submit" class="btn btn-primary" value="评论" onsubmit="if($(this).prev().val().trim() == ''){alert('请输入内容');return false;}"/>
+                    <input type="hidden" name="article" value="<%=article._id%>"/>
+                </form>
+            </div>
+
+        <%comments.forEach(function(comment){ if(comment.commentId === undefined){%>
+            <div class="panel-body" style="border: 1px solid #cccccc"><%=comment.content%><br>评论者:<%=comment.user.username%>|评论时间:<%=comment.createAt.toLocaleString()%>
+                <form method="POST" action="/comment/reply">
+                    <textarea name="content" cols="30" rows="1" class="form-control" style="display:none;"></textarea>
+                    <button type="button" class="btn btn-primary">回复</button>
+                    <input type="hidden" name="article" value="<%=article._id%>"/>
+                    <input type="hidden" name="commentId" value="<%=comment._id%>"/>
+                </form>
+                <%for(let key in idPidArr){
+                     let tmpkey = key;
+                     let tmpFlag = false;
+                     while(idPidArr[tmpkey].toString() != '0'){
+                         if(comment._id.toString()===idPidArr[tmpkey].toString()){
+                             tmpFlag = true;
+                             break;
+                         }else{
+                             tmpkey = idPidArr[tmpkey];
+                         }
+                     }
+                     if(tmpFlag){%>
+                    <div class="panel-body" style="border: 1px solid #cccccc"><%=commentArr[key].content%><br><%=commentArr[key].user.username%>回复<%=commentArr[tmpkey].user.username%>的评论|回复时间:<%=commentArr[key].createAt.toLocaleString()%>
+                        <form method="POST" action="/comment/reply">
+                            <textarea name="content" cols="30" rows="1" class="form-control" style="display:none;"></textarea>
+                            <button type="button" class="btn btn-primary">回复</button>
+                            <input type="hidden" name="article" value="<%=article._id%>"/>
+                            <input type="hidden" name="commentId" value="<%=commentArr[key]._id%>"/>
+                        </form>
+                    </div>
+                    <%}%>
+                <%}%>
+            </div>
+        <%}})%>
+        </div>
+    </div>
+</div>
+<script>
+    $('button').on('click', function(){
+        if($(this).prev().attr('style') == "display:none;"){
+            $(this).prev().removeAttr('style');
+        }else{
+            if($(this).prev().val().trim() == ''){
+                alert('请输入内容');
+                return false;
+            }else{
+                $(this).closest('form').submit();
+                return true;
+            }
+        }
+    });
+</script>
+<% include ../include/footer.html%>

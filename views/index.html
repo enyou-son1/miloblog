@@ -1,0 +1,54 @@
+<% include ./include/header.html%>
+<div class="row">
+    <div class="col-sm-8 col-sm-offset-2">
+        <%articles.forEach(function(article){%>
+        <div class="media">
+            <div class="media-left">
+                <a href="">
+                    <img  class="media-object avatar" src="<%=article.user.avatar%>" alt="<%=article.user.username%>">
+                </a>
+            </div>
+            <div class="media-body">
+                <h4 class="media-heading">
+                    <a href="/article/detail/<%=article._id%>"><%=article.title%></a>
+                </h4>
+                <p><%=article.content%></p>
+                <p>作者:<%=article.user.username%>|发表时间:<%=article.createAt.toLocaleString()%>|阅读量:<%=article.pageView%>|评论量:<%=article.commentCnt%></p>
+            </div>
+        </div>
+        <%})%>
+        <nav>
+            <ul class="pagination">
+                <%if(pageNum>1){%>
+                <li>
+                    <a href="/?pageNum=<%=pageNum-1%>&pageSize=<%=pageSize%>&keyword=<%=keyword%>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <%}%>
+                <%for(let i=1;i<=totalPages;i++){%>
+                <li class="<%=i == pageNum?'active':''%>"><a href="/?pageNum=<%=i%>&pageSize=<%=pageSize%>&keyword=<%=keyword%>"><%=i%></a></li>
+                <%}%>
+                <%if(pageNum<totalPages){%>
+                <li>
+                    <a href="/?pageNum=<%=pageNum+1%>&pageSize=<%=pageSize%>&keyword=<%=keyword%>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <%}%>
+            </ul>
+        </nav>
+        <div>
+            共<%=totalPages%>页
+            到第<input value="<%=pageNum%>" id="targetPage" class="form-control" min="1" max="<%=totalPages%>" type="number" style="width:80px;display:inline-block">页
+            <button onclick="goto()" class="btn btn-primary">确定</button>
+        </div>
+    </div>
+</div>
+<script>
+    function goto(){
+        let targetPage = document.querySelector('#targetPage').value;
+        location = `/?pageNum=${targetPage}&pageSize=<%=pageSize%>&keyword=<%=keyword%>`;
+    }
+</script>
+<% include ./include/footer.html%>
